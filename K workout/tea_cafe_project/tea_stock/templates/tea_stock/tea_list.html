@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>Lamun Tea Bar & Stock Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2D5A27;
+            --secondary-color: #8FBC8F;
+            --bg-color: #F8F9FA;
+        }
+        body { font-family: 'Prompt', sans-serif; background-color: var(--bg-color); color: #333; }
+        .navbar { background: linear-gradient(135deg, #1e3d1a, #2D5A27) !important; padding: 15px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .navbar-brand { font-weight: 700; letter-spacing: 0.5px; font-size: 1.3rem; }
+        .card { border: none; border-radius: 16px; box-shadow: 0 6px 20px rgba(0,0,0,0.04); background: #ffffff; }
+        .btn-admin { background: rgba(255, 255, 255, 0.15); color: #fff; font-weight: 500; border-radius: 10px; border: 1px solid rgba(255,255,255,0.3); transition: all 0.3s; }
+        .btn-admin:hover { background: #fff; color: #2D5A27; }
+        .table thead th { background-color: #f4f6f5; color: #495057; font-weight: 600; border-bottom: 2px solid #dee2e6; padding: 15px; }
+        .table tbody td { padding: 15px; vertical-align: middle; }
+        .search-box { border-radius: 12px; padding: 12px 20px; border: 1px solid #e0e0e0; }
+        .badge { padding: 8px 12px; border-radius: 8px; font-weight: 500; }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand text-white d-flex align-items-center gap-2" href="{% url 'tea_list' %}">
+                <i class="fa-solid fa-mug-hot text-warning"></i> <span>LAMUN TEA BAR & STOCK</span>
+            </a>
+            <div class="ms-auto d-flex align-items-center gap-2">
+                {% if user.is_authenticated %}
+                    <span class="text-white small me-2">👤 ผู้ดูแลระบบ: {{ user.username }}</span>
+                    <a class="btn btn-outline-light btn-sm px-3 py-2 rounded-3" href="{% url 'tea_add' %}">
+                        <i class="fa-solid fa-plus me-1"></i> เพิ่มเมนูชา
+                    </a>
+                    <a class="btn btn-admin px-3 py-2" href="/admin/">
+                        <i class="fa-solid fa-gauge-high me-1"></i> ระบบหลังบ้าน
+                    </a>
+                {% else %}
+                    <!-- ซ่อนรหัสผ่านเรียบร้อย ให้กดเข้าสู่ระบบแบบคลีนๆ ปลอดภัย -->
+                    <a class="btn btn-admin px-4 py-2" href="/admin/login/">
+                        <i class="fa-solid fa-lock me-1"></i> เข้าสู่ระบบจัดการสต็อก
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <!-- Header & Search -->
+        <div class="row mb-4 align-items-center g-3">
+            <div class="col-lg-6">
+                <h2 class="fw-bold text-dark mb-1">🧋 คลังสต็อกเมนูชาและวัตถุดิบ</h2>
+                <p class="text-muted mb-0">ระบบตรวจสอบสถานะสินค้าคงคลังร้านชา</p>
+            </div>
+            <div class="col-lg-6">
+                <form method="GET" class="d-flex gap-2">
+                    <input type="text" name="q" class="form-control search-box" placeholder="🔍 ค้นหาชื่อเมนูชา..." value="{{ query }}">
+                    <button type="submit" class="btn btn-success px-4 rounded-3 fw-semibold" style="background-color: var(--primary-color);">ค้นหา</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Table Card -->
+        <div class="card p-4">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-3" style="width: 5%;">#</th>
+                            <th style="width: 30%;">ชื่อเมนูชา</th>
+                            <th style="width: 15%;">ประเภท</th>
+                            <th style="width: 12%;">ราคา</th>
+                            <th style="width: 15%;">สต็อกคงเหลือ</th>
+                            <th style="width: 13%;">อัปเดตล่าสุด</th>
+                            {% if user.is_authenticated %}
+                                <th class="text-end pe-3" style="width: 10%;">จัดการ</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                        <tr>
+                            <td class="ps-3 text-muted fw-semibold">{{ forloop.counter }}</td>
+                            <td>
+                                <div class="fw-bold text-dark fs-6">{{ item.name }}</div>
+                                {% if item.description %}
+                                    <small class="text-muted text-truncate d-block" style="max-width: 250px;">{{ item.description }}</small>
+                                {% endif %}
+                            </td>
+                            <td><span class="badge bg-light text-success border border-success px-3">{{ item.category.name }}</span></td>
+                            <td class="fw-bold text-secondary">฿{{ item.price }}</td>
+                            <td>
+                                {% if item.stock > 10 %}
+                                    <span class="badge bg-success bg-opacity-10 text-success fw-bold px-3">🟢 {{ item.stock }} แก้ว</span>
+                                {% elif item.stock > 0 %}
+                                    <span class="badge bg-warning bg-opacity-10 text-warning text-dark fw-bold px-3">🟡 {{ item.stock }} แก้ว (ใกล้หมด)</span>
+                                {% else %}
+                                    <span class="badge bg-danger bg-opacity-10 text-danger fw-bold px-3">🔴 สินค้าหมด</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-muted small">{{ item.updated_at|date:"d/m/Y H:i" }}</td>
+                            
+                            {% if user.is_authenticated %}
+                                <td class="text-end pe-3">
+                                    <a href="{% url 'tea_edit' item.id %}" class="btn btn-sm btn-light text-primary border me-1 px-2 rounded-2 shadow-sm" title="แก้ไข">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </a>
+                                    <a href="{% url 'tea_delete' item.id %}" class="btn btn-sm btn-light text-danger border px-2 rounded-2 shadow-sm" title="ลบ">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </a>
+                                </td>
+                            {% endif %}
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-5">
+                                <div class="text-muted py-4">
+                                    <i class="fa-solid fa-mug-saucer fa-3x mb-3 text-secondary opacity-50"></i>
+                                    <p class="fs-5 mb-1">ยังไม่มีข้อมูลเมนูชาในระบบ</p>
+                                    <p class="small text-muted">เข้าสู่ระบบหลังบ้านเพื่อเพิ่มข้อมูลสินค้า</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
