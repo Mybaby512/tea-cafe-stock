@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คลังอุปกรณ์และสต็อก | Workout Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #0b0b10; color: #f1f1f1; font-family: 'Kanit', sans-serif; }
+        .navbar-custom { background: rgba(18, 18, 26, 0.95); border-bottom: 1px solid rgba(0, 255, 102, 0.2); padding: 0.8rem 2rem; }
+        .brand-logo { font-weight: 700; background: linear-gradient(45deg, #00ff66, #00bfff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
+        .card-custom { background: #14141e; border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; }
+        .btn-neon { background: linear-gradient(135deg, #00ff66, #00cc52); color: #000; font-weight: 600; border-radius: 50px; padding: 7px 18px; text-decoration: none; border: none; }
+        .btn-neon:hover { box-shadow: 0 0 15px rgba(0, 255, 102, 0.5); color: #000; }
+        .table-custom { color: #fff; vertical-align: middle; }
+        .table-custom th { background-color: #1a1a24; color: #00ff66; border-bottom: 2px solid #2a2a3b; padding: 14px; font-weight: 500; }
+        .table-custom td { background-color: transparent; border-bottom: 1px solid #1f1f2e; padding: 14px; color: #d1d1d6; }
+        .pagination .page-link { background-color: #14141e; border-color: #2a2a3b; color: #00ff66; }
+        .pagination .page-item.active .page-link { background-color: #00ff66; border-color: #00ff66; color: #000; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar-custom sticky-top">
+        <div class="d-flex justify-content-between align-items-center w-100">
+            <div class="d-flex align-items-center gap-3">
+                <a href="/" class="btn btn-outline-secondary btn-sm rounded-pill"><i class="fa-solid fa-arrow-left me-1"></i>หน้าหลัก</a>
+                <a class="brand-logo fs-4" href="{% url 'equipment_list' %}"><i class="fa-solid fa-dumbbell me-2"></i>EQUIPMENT <span class="text-white">STOCK</span></a>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <a href="{% url 'equipment_create' %}" class="btn-neon"><i class="fa-solid fa-plus me-1"></i> เพิ่มอุปกรณ์เข้าคลัง</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <div class="row align-items-center mb-4 g-3">
+            <div class="col-md-6">
+                <h3 class="fw-bold mb-1 text-white"><i class="fa-solid fa-boxes-stacked text-success me-2"></i>รายการคลังอุปกรณ์และสต็อก</h3>
+                <p class="text-muted small mb-0">รายการอุปกรณ์ทั้งหมดในระบบ</p>
+            </div>
+            <div class="col-md-6">
+                <form method="GET" class="d-flex gap-2">
+                    <input type="text" name="q" class="form-control bg-dark text-white border-secondary" placeholder="🔍 ค้นหารหัสหรือชื่ออุปกรณ์..." value="{{ query }}">
+                    <button type="submit" class="btn btn-outline-success px-4">ค้นหา</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card card-custom p-3">
+            <div class="table-responsive">
+                <table class="table table-custom mb-0">
+                    <thead>
+                        <tr>
+                            <th>รหัสอุปกรณ์</th>
+                            <th>ชื่ออุปกรณ์</th>
+                            <th>หมวดหมู่</th>
+                            <th>จำนวนคงเหลือ</th>
+                            <th>โซนจัดเก็บ</th>
+                            <th>สถานะ</th>
+                            <th class="text-center">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for eq in page_obj %}
+                        <tr>
+                            <td><span class="badge bg-secondary bg-opacity-50 font-monospace">{{ eq.code }}</span></td>
+                            <td class="fw-bold text-white">{{ eq.name }}</td>
+                            <td><span class="text-info">{{ eq.get_category_display }}</span></td>
+                            <td>
+                                {% if eq.stock > 0 %}
+                                    <span class="badge bg-success bg-opacity-25 text-success border border-success">{{ eq.stock }} ชิ้น</span>
+                                {% else %}
+                                    <span class="badge bg-danger bg-opacity-25 text-danger border border-danger">หมดสต็อก</span>
+                                {% endif %}
+                            </td>
+                            <td><i class="fa-solid fa-location-dot me-1 text-warning"></i>{{ eq.location }}</td>
+                            <td>
+                                {% if eq.status == 'available' %}
+                                    <span class="badge bg-success">พร้อมใช้งาน</span>
+                                {% elif eq.status == 'maintenance' %}
+                                    <span class="badge bg-warning text-dark">ส่งซ่อม/บำรุง</span>
+                                {% else %}
+                                    <span class="badge bg-danger">ของหมด</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <a href="{% url 'equipment_update' eq.id %}" class="btn btn-sm btn-outline-warning me-1"><i class="fa-solid fa-pen-to-square"></i></a>
+                                <a href="{% url 'equipment_delete' eq.id %}" class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-5">
+                                <i class="fa-solid fa-box-open fa-2x mb-3 text-secondary"></i>
+                                <p class="mb-0">ยังไม่มีรายการอุปกรณ์ในระบบ</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ระบบแบ่งหน้า Pagination -->
+            {% if page_obj.has_other_pages %}
+            <div class="d-flex justify-content-center mt-4">
+                <ul class="pagination mb-0">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">ก่อนหน้า</a></li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% else %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}">ถัดไป</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

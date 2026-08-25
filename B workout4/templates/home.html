@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout Hub | เลือกระบบจัดการ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #0b0b10; color: #f1f1f1; font-family: 'Kanit', sans-serif; min-height: 100vh; }
+        .navbar-custom { background: rgba(18, 18, 26, 0.95); border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding: 1rem 2rem; }
+        .brand-title { font-weight: 700; background: linear-gradient(45deg, #00ff66, #00bfff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
+        .portal-card { background: #14141e; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 2.5rem 2rem; text-align: center; transition: all 0.3s; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
+        .portal-card:hover { transform: translateY(-8px); border-color: rgba(0, 255, 102, 0.5); box-shadow: 0 12px 30px rgba(0, 255, 102, 0.15); }
+        .icon-circle { width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 2rem; }
+        .icon-emp { background: rgba(0, 191, 255, 0.1); color: #00bfff; border: 1px solid rgba(0, 191, 255, 0.3); }
+        .icon-eqp { background: rgba(0, 255, 102, 0.1); color: #00ff66; border: 1px solid rgba(0, 255, 102, 0.3); }
+        .btn-emp { background: linear-gradient(135deg, #00bfff, #0077cc); color: #fff; font-weight: 600; border-radius: 50px; padding: 10px 24px; text-decoration: none; display: block; }
+        .btn-eqp { background: linear-gradient(135deg, #00ff66, #00cc52); color: #000; font-weight: 600; border-radius: 50px; padding: 10px 24px; text-decoration: none; display: block; }
+        .btn-emp:hover, .btn-eqp:hover { opacity: 0.9; color: inherit; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar-custom">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a class="brand-title fs-4" href="/"><i class="fa-solid fa-cubes-stacked me-2"></i>WORKOUT HUB</a>
+            <div>
+                {% if user.is_authenticated %}
+                    <span class="text-muted small me-3"><i class="fa-solid fa-user-shield text-success me-1"></i>{{ user.username }}</span>
+                    <a href="/admin/" class="btn btn-outline-light btn-sm rounded-pill px-3">ระบบ Admin</a>
+                {% else %}
+                    <a href="/admin/login/?next=/" class="btn btn-outline-light btn-sm rounded-pill px-3">เข้าสู่ระบบ</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5 text-center">
+        <h1 class="fw-bold display-5 text-white mb-2">ระบบบริหารจัดการศูนย์รวม</h1>
+        <p class="text-muted mb-5">เลือกโมดูลที่ต้องการจัดการข้อมูล</p>
+
+        <div class="row g-4 justify-content-center text-start">
+            <!-- จัดการพนักงาน -->
+            <div class="col-md-5">
+                <div class="portal-card">
+                    <div>
+                        <div class="icon-circle icon-emp"><i class="fa-solid fa-users"></i></div>
+                        <h3 class="fw-bold text-white text-center mb-2">ระบบจัดการพนักงาน</h3>
+                        <p class="text-muted text-center mb-4">ทะเบียนประวัติพนักงาน แผนก บันทึกเงินเดือน และรูปโปรไฟล์</p>
+                    </div>
+                    <div>
+                        <a href="/employee/" class="btn-emp text-center"><i class="fa-solid fa-arrow-right-to-bracket me-2"></i>เข้าสู่ระบบพนักงาน</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- จัดการอุปกรณ์/สต็อก -->
+            <div class="col-md-5">
+                <div class="portal-card">
+                    <div>
+                        <div class="icon-circle icon-eqp"><i class="fa-solid fa-dumbbell"></i></div>
+                        <h3 class="fw-bold text-white text-center mb-2">ระบบจัดการอุปกรณ์</h3>
+                        <p class="text-muted text-center mb-4">คลังสต็อกอุปกรณ์ ตรวจสอบสถานะชำรุด/ซ่อมบำรุง และจำนวนคงเหลือ</p>
+                    </div>
+                    <div>
+                        <a href="/equipment/" class="btn-eqp text-center"><i class="fa-solid fa-arrow-right-to-bracket me-2"></i>เข้าสู่ระบบคลังอุปกรณ์</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
